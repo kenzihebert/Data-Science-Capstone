@@ -1,0 +1,193 @@
+---
+title: "DAT490_EDA"
+author: "Jamie Yu"
+date: "2025-10-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+```
+
+## Data Cleansing: ILI
+
+### ILI National Data By State
+PERCENTAGE OF VISITS FOR INFLUENZA-LIKE-ILLNESS REPORTED BY SENTINEL PROVIDERS  
+Separated by state
+
+Note: "X" is NA
+
+```{r}
+# Load in ILI National Data by State dataset
+ILINetByState = read.csv("ILINet by State.csv", sep = ",", header = TRUE)
+
+# Remove these columns since they're all Xs
+  # 5 // WEIGHTED ILI
+  # 7 // AGE 0-4
+  # 8 // AGE 25-49
+  # 9 // AGE 25-64
+  # 10 // AGE 5-24
+  # 11 // AGE 50-64
+  # 12 // AGE 65
+
+ILINetByState = ILINetByState[, -c(5, 7, 8, 9, 10, 11, 12)]
+
+# Remove any remaining rows that consist of Xs
+  # Change all Xs into NA
+ILINetByState[ILINetByState == "X"] = NA
+  # Remove all NAs
+ILINetByState = na.omit(ILINetByState)
+
+# Read in the head and summary of the dataset
+head(ILINetByState)
+summary(ILINetByState)
+```
+
+### ILI National Data
+PERCENTAGE OF VISITS FOR INFLUENZA-LIKE-ILLNESS REPORTED BY SENTINEL PROVIDERS  
+Separated by age
+
+Note: "X" is NA
+```{r}
+# Load in ILINet dataset
+ILINet = read.csv("ILINet.csv", sep = ",", header = TRUE)
+
+# Remove these columns since they're all Xs
+  # 2 // REGION
+  # 9 // AGE 25-64
+ILINet = ILINet[, -c(2, 9)]
+
+# Remove any remaining rows that consist of Xs
+  # Change all Xs into NA
+ILINet[ILINet == "X"] = NA
+  # Remove all NAs
+ILINet = na.omit(ILINet)
+
+# Read in the head and summary of the dataset
+head(ILINet)
+summary(ILINet)
+```
+
+## EDA
+### Cases by age group
+
+```{r}
+# Histogram: ILI by age (using ILINet)
+
+library(ggplot2)  # Used to make graphs
+library(gridExtra)  # Used to align plots next to each other
+
+# Sum up all the data of each age, regardless of year
+AGE.0.4 =   mean(ILINet$AGE.0.4)
+AGE.5.24 =  mean(ILINet$AGE.5.24)
+AGE.25.49 = mean(ILINet$AGE.25.49)
+AGE.50.64 = mean(ILINet$AGE.50.64)
+AGE.65 =    mean(ILINet$AGE.65)
+
+    # Create dataframe to create plot
+    Ages = c("0-4", "5-24", "25-49", "50-64", "65")
+    AvgCases = c(AGE.0.4, AGE.5.24, AGE.25.49, AGE.50.64, AGE.65)
+    
+    AgesInOrder = c("0-4", "5-24", "25-49", "50-64", "65")  # Used to reorder the ages in numerical order using factor()
+    
+    df = data.frame(Ages, AvgCases)
+    
+    # Create barplot
+    ggplot(df, aes(x = factor(Ages, AgesInOrder), y = AvgCases)) + 
+      geom_bar(stat = "identity", fill = "aquamarine3") +
+      ggtitle("Barplot of Cases By Age") + 
+      xlab("Ages") + 
+      ylab("Average Number of Cases")
+
+# Sum up all the data of each age group by year
+
+# ---------- 2010 - 2015 ----------
+Year2010To2015 = ILINet %>% filter(YEAR >= 2010, YEAR <= 2015)
+  AGE.0.4 =   mean(Year2010To2015$AGE.0.4)
+  AGE.5.24 =  mean(Year2010To2015$AGE.5.24)
+  AGE.25.49 = mean(Year2010To2015$AGE.25.49)
+  AGE.50.64 = mean(Year2010To2015$AGE.50.64)
+  AGE.65 =    mean(Year2010To2015$AGE.65)
+  
+    # Create dataframe to create plot
+    Ages = c("0-4", "5-24", "25-49", "50-64", "65")
+    AvgCases = c(AGE.0.4, AGE.5.24, AGE.25.49, AGE.50.64, AGE.65)
+    
+    AgesInOrder = c("0-4", "5-24", "25-49", "50-64", "65")  # Used to reorder the ages in numerical order using factor()
+    
+    df = data.frame(Ages, AvgCases)
+    
+    # Create barplot
+    Plot2010To2015 = ggplot(df, aes(x = factor(Ages, AgesInOrder), y = AvgCases)) + 
+      geom_bar(stat = "identity", fill = "cornflowerblue") +
+      ggtitle("ILI By Age\n(2010 - 2015)") + 
+      xlab("Ages") + 
+      ylab("Average Number of Cases") +
+      ylim(c(0, 20000))
+  
+# ---------- 2016 to 2020 ----------
+
+Year2016To2020 = ILINet %>% filter(YEAR >= 2016, YEAR <= 2020)
+  AGE.0.4 =   mean(Year2016To2020$AGE.0.4)
+  AGE.5.24 =  mean(Year2016To2020$AGE.5.24)
+  AGE.25.49 = mean(Year2016To2020$AGE.25.49)
+  AGE.50.64 = mean(Year2016To2020$AGE.50.64)
+  AGE.65 =    mean(Year2016To2020$AGE.65)
+  
+    # Create dataframe to create plot
+    Ages = c("0-4", "5-24", "25-49", "50-64", "65")
+    AvgCases = c(AGE.0.4, AGE.5.24, AGE.25.49, AGE.50.64, AGE.65)
+    
+    AgesInOrder = c("0-4", "5-24", "25-49", "50-64", "65")  # Used to reorder the ages in numerical order using factor()
+    
+    df = data.frame(Ages, AvgCases)
+    
+    # Create barplot
+    Plot2016To2020 = ggplot(df, aes(x = factor(Ages, AgesInOrder), y = AvgCases)) + 
+      geom_bar(stat = "identity", fill = "cornflowerblue") +
+      ggtitle("ILI By Age\n(2016 - 2020)") + 
+      xlab("Ages") + 
+      ylab("Average Number of Cases") + 
+      ylim(c(0, 20000))
+
+# ---------- 2021 to 2025 ----------
+  
+Year2021To2025 = ILINet %>% filter(YEAR >= 2021, YEAR <= 2025)
+  AGE.0.4 =   mean(Year2021To2025$AGE.0.4)
+  AGE.5.24 =  mean(Year2021To2025$AGE.5.24)
+  AGE.25.49 = mean(Year2021To2025$AGE.25.49)
+  AGE.50.64 = mean(Year2021To2025$AGE.50.64)
+  AGE.65 =    mean(Year2021To2025$AGE.65)
+  
+        # Create dataframe to create plot
+    Ages = c("0-4", "5-24", "25-49", "50-64", "65")
+    AvgCases = c(AGE.0.4, AGE.5.24, AGE.25.49, AGE.50.64, AGE.65)
+    
+    AgesInOrder = c("0-4", "5-24", "25-49", "50-64", "65")  # Used to reorder the ages in numerical order using factor()
+    
+    df = data.frame(Ages, AvgCases)
+    
+    # Create barplot
+    Plot2021To2025 = ggplot(df, aes(x = factor(Ages, AgesInOrder), y = AvgCases)) + 
+      geom_bar(stat = "identity", fill = "cornflowerblue") +
+      ggtitle("ILI By Age\n(2021 - 2025)") + 
+      xlab("Ages") + 
+      ylab("Average Number of Cases") + 
+      ylim(c(0, 20000))
+
+# Order the plots in a grid using GridExtra package
+grid.arrange(Plot2010To2015, Plot2016To2020, Plot2021To2025, ncol = 3)
+```
+
+```{r}
+ggplot(ILINet, aes(x = WEEK, y = factor(YEAR), fill = as.numeric(X.UNWEIGHTED.ILI))) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "plasma") +
+  labs(title = "ILI Intensity by Year and Week",
+       x = "Week", y = "Year", fill = "% Unweighted ILI") +
+  theme_minimal()
+```
